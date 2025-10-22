@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/team")
 //@CrossOrigin(origins = "http://localhost:5173") // FOr local
-@CrossOrigin(origins = "http://localhost:5173") // For production
+@CrossOrigin(origins = "https://cricket-score-manager.netlify.app/") // For production
 public class TeamController {
 
     @Autowired
