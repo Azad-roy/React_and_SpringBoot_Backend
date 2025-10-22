@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle { font-size: 1.1rem; color: #6c757d; max-width: 600px; margin: 0 auto; }
+        .add-team-form {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            display: flex;
+            gap: 15px;
+        }
+        .add-team-form input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .add-team-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+            min-height: 200px; /* Added for better loading feedback */
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+        .card-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 10px; }
+        .card-description { color: #6c757d; font-size: 0.9rem; }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .popup h2 { margin-bottom: 15px; }
+        .popup ul { list-style: none; padding-left: 0; }
+        
+        /* --- NEW CSS FOR PAGINATION --- */
+        .pagination-controls {
+            text-align: center;
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        .pagination-controls .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        #pageInfo {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 1.1rem;
+            min-width: 100px; /* Stops layout shift */
+        }
+        /* --- END OF NEW CSS --- */
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Team Dashboard</h1>
+            <p class="subtitle">Explore team details and add new teams.</p>
+        </header>
+
+        <form class="add-team-form" id="addTeamForm">
+            <input type="text" id="newTeamName" placeholder="Enter new team name (e.g., T5)" required>
+            <input type="text" id="newScoreName" placeholder="Enter your team score" required>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Team
+            </button>
+        </form>
+
+        <div class="card-container" id="cardContainer">
+            <p>Loading teams...</p>
+        </div>
+
+        <div class="pagination-controls">
+            <button class="btn btn-primary" id="prevPageBtn" disabled>&laquo; Previous</button>
+            <span id="pageInfo">Page 1 of 1</span>
+            <button class="btn btn-primary" id="nextPageBtn" disabled>Next &raquo;</button>
+        </div>
+        </div>
+
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <h2 id="popupTitle"></h2>
+            <p id="popupBody"></p>
+            <button class="btn btn-primary" onclick="closePopup()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT MODIFICATIONS ---
+        const cardContainer = document.getElementById("cardContainer");
+        const popup = document.getElementById("popup");
+        const popupTitle = document.getElementById("popupTitle");
+        const popupBody = document.getElementById("popupBody");
+        const addTeamForm = document.getElementById("addTeamForm");
+        const newTeamNameInput = document.getElementById("newTeamName");
+        const newScoreNameInput = document.getElementById("newScoreName");
+
+        // --- NEW PAGINATION VARIABLES ---
+        const prevPageBtn = document.getElementById("prevPageBtn");
+        const nextPageBtn = document.getElementById("nextPageBtn");
+        const pageInfo = document.getElementById("pageInfo");
+
+        let currentPage = 0;
+        let totalPages = 1;
+        const pageSize = 6; // Set a page size
+
+        // --- UPDATED loadCards function ---
+        async function loadCards(page = 0) {
+            try {
+                cardContainer.innerHTML = `<p>Loading teams...</p>`;
+                
+                // This fetch URL now includes pageNum and pageSize,
+                // which matches your backend controller's @RequestParam
+                const res = await fetch(`http://localhost:8080/team?pageNum=${page}&pageSize=${pageSize}`);
+                
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch teams: ${res.status}`);
+                }
+
+                // The response is now a Page object
+                const pageData = await res.json();
+                const teams = pageData.content; // The array of teams is in the "content" property
+
+                // Update global page state
+                currentPage = pageData.number; // The current page number (0-indexed)
+                totalPages = pageData.totalPages; // Total number of pages
+
+                cardContainer.innerHTML = ""; // Clear loading message
+
+                if (teams.length === 0) {
+                    cardContainer.innerHTML = `<p>No teams found. Add one!</p>`;
+                } else {
+                    teams.forEach(team => {
+                        const card = document.createElement("div");
+                        card.className = "card";
+                        card.innerHTML = `
+                        <div class="card-icon"><i class="fas fa-users"></i></div>
+                        <div class="card-title">${team.name}</div>
+                        <div class="card-description">Score: ${team.score}</div>
+                    `;
+                        // I added Score to the card to make sorting obvious
+                        
+                        card.onclick = () => fetchTeam(team.name);
+                        cardContainer.appendChild(card);
+                    });
+                }
+
+                // Update the pagination buttons
+                updatePaginationControls();
+
+            } catch (err) {
+                console.error(err);
+                cardContainer.innerHTML = `<p>Error loading teams.</p>`;
+            }
+        }
+
+        // --- NEW function to update pagination controls ---
+        function updatePaginationControls() {
+            // Add 1 to currentPage for a user-friendly display (Page 1, not Page 0)
+            pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
+
+            // Enable/disable buttons based on page state
+            prevPageBtn.disabled = (currentPage === 0);
+            nextPageBtn.disabled = (currentPage >= totalPages - 1);
+        }
+
+        async function fetchTeam(name) {
+            try {
+                const res = await fetch(`http://localhost:8080/team/${name}`);
+                if (!res.ok) throw new Error("Failed to fetch team");
+                
+                const team = await res.json();
+
+                popupTitle.textContent = team.name;
+                popupBody.innerHTML = `Team ID: ${team.id || 'N/A'}<br> Score: ${team.score} `;
+                popup.style.display = "flex";
+
+            } catch (err)
+ {
+                console.error(err);
+                alert("Could not fetch team details.");
+            }
+        }
+
+        function closePopup() {
+            popup.style.display = "none";
+        }
+
+        async function addTeam(event) {
+            event.preventDefault();
+            const name = newTeamNameInput.value.trim();
+            const score = newScoreNameInput.value.trim(); 
+
+            if (!name || !score) return;
+
+            const scoreValue = parseInt(score);
+            if (isNaN(scoreValue)) {
+                alert("Score must be a number.");
+                return;
+            }
+
+            try {
+                const res = await fetch("http://localhost:8080/team", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, score: scoreValue }) 
+                });
+
+                if (!res.ok) throw new Error("Failed to add team");
+
+                newTeamNameInput.value = "";
+                newScoreNameInput.value = "";
+                
+                // Reload page 0 to see the new team (it will be at the top if sorted)
+                loadCards(0); 
+
+            } catch (err) {
+                console.error(err);
+                alert("Could not add team.");
+            }
+        }
+
+        addTeamForm.addEventListener("submit", addTeam);
+
+        // --- NEW event listeners for pagination buttons ---
+        prevPageBtn.addEventListener("click", () => {
+            if (currentPage > 0) {
+                loadCards(currentPage - 1);
+            }
+        });
+
+        nextPageBtn.addEventListener("click", () => {
+            if (currentPage < totalPages - 1) {
+                loadCards(currentPage + 1);
+            }
+        });
+
+        // Load initial teams (page 0)
+        loadCards(0);
+
+    </script>
+</body>
+
+</html>
