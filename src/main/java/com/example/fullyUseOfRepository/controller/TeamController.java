@@ -26,7 +26,7 @@ public class TeamController {
 //    }
 
     @GetMapping
-    public Page<Team> getAllTeams(@RequestParam int pageNum, int pageSize){
+    public Page<Team> getAllTeams(@RequestParam int pageNum, @RequestParam int pageSize){
         return teamService.getAllTeam(pageNum,pageSize);
     }
 
